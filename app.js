@@ -1,28 +1,27 @@
-const express = require('express');
+const express = require("express");
 
 const { PORT = 3000 } = process.env;
-const router = require("./routes")
+const router = require("./routes");
 const app = express();
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use((req, res, next) => {
   req.user = {
-    _id: '62d79ff8990074336c14c5ec'
+    _id: "62d79ff8990074336c14c5ec",
   };
   next();
 });
 app.use(router);
 
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-mongoose.connect('mongodb://localhost:27017/mestodb', {
+mongoose.connect("mongodb://localhost:27017/mestodb", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
-
 app.listen(PORT, () => {
-    console.log(`App listening on port ${PORT}`)
-})
+  console.log(`App listening on port ${PORT}`);
+});
