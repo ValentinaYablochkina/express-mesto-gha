@@ -14,7 +14,7 @@ const createCard = (req, res) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректны данные' });
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 const deleteCard = (req, res) => {
@@ -27,7 +27,7 @@ const deleteCard = (req, res) => {
           .status(404)
           .send({ message: 'Карточка с указанным id не найдена' });
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -54,7 +54,7 @@ const likeCard = (req, res) => {
           .status(404)
           .send({ message: 'Передан несуществующий id карточки' });
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -79,7 +79,7 @@ const dislikeCard = (req, res) => {
           .status(404)
           .send({ message: 'Передан несуществующий id карточки' });
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 module.exports = {
