@@ -37,7 +37,7 @@ const createUser = (req, res) => {
 const updateUserProfile = (req, res) => {
   const { name, about } = req.body;
   const { id } = req.user._id;
-  User.findByIdAndUpdate(id, name, about)
+  User.findByIdAndUpdate({ name, about, id })
     .then((user) => res.send({ data: user }))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
