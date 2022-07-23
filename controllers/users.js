@@ -42,7 +42,7 @@ const createUser = (req, res) => {
 const updateUserProfile = (req, res) => {
   // eslint-disable-next-line max-len
   User.findOneAndUpdate(req.user._id, { name: req.body.name, about: req.body.about }, { runValidators: true })
-    .then((user) => res.send({ user }))
+    .then((user) => res.send(user.name, user.about))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -58,7 +58,7 @@ const updateUserProfile = (req, res) => {
 };
 const updateUserAvatar = (req, res) => {
   User.findOneAndUpdate(req.user._id, { avatar: req.body.avatar }, { runValidators: true })
-    .then((avatar) => res.send({ avatar }))
+    .then((user) => res.send(user.avatar))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'ValidationError') {
