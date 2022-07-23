@@ -2,14 +2,14 @@ const User = require('../models/user');
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
+    .then((users) => res.send(users))
     .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
 };
 
 const getUser = (req, res) => {
-  const { userId } = req.params;
+  const { userId } = req.params._id;
   User.findById(userId)
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
         res
@@ -23,7 +23,7 @@ const getUser = (req, res) => {
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректны данные' });
@@ -33,10 +33,9 @@ const createUser = (req, res) => {
 };
 
 const updateUserProfile = (req, res) => {
-  const { name, about } = req.body;
   const { id } = req.user._id;
-  User.findOneAndUpdate({ name, about, id })
-    .then((user) => res.send({ data: user }))
+  User.findByIdAndUpdate(id, { name: req.body.name, about: req.body.avatar })
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректны данные' });
@@ -50,10 +49,9 @@ const updateUserProfile = (req, res) => {
     });
 };
 const updateUserAvatar = (req, res) => {
-  const avatar = req.body;
   const { id } = req.user._id;
-  User.findOneAndUpdatee(id, avatar)
-    .then((user) => res.send({ data: user.avatar }))
+  User.findByIdAndUpdate(id, { avatar: req.body.avatar })
+    .then((user) => res.send(user.avatar))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
