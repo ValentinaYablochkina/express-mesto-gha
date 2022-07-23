@@ -12,10 +12,15 @@ const getUser = (req, res) => {
     .then((user) => res.send(user))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         return res
           .status(404)
           .send({ message: 'Запрашиваемый пользователь не найден' });
+      }
+      if (err.name === 'CastError') {
+        return res
+          .status(400)
+          .send({ message: 'Введены некорректные данные' });
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
@@ -28,20 +33,20 @@ const createUser = (req, res) => {
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректны данные' });
+        return res.status(400).send({ message: 'Переданы некорректные данные' });
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
 const updateUserProfile = (req, res) => {
-  const { id } = req.user._id;
-  User.findByIdAndUpdate(id, { name: req.body.name, about: req.body.avatar })
-    .then((user) => res.send(user))
+  // eslint-disable-next-line max-len
+  User.findOneAndUpdate(req.user._id, { name: req.body.name, about: req.body.about }, { runValidators: true })
+    .then((user) => res.send({ user }))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректны данные' });
+        return res.status(400).send({ message: 'Переданы некорректные данные' });
       }
       if (err.name === 'CastError') {
         return res
@@ -52,9 +57,8 @@ const updateUserProfile = (req, res) => {
     });
 };
 const updateUserAvatar = (req, res) => {
-  const { id } = req.user._id;
-  User.findByIdAndUpdate(id, { avatar: req.body.avatar })
-    .then((user) => res.send(user.avatar))
+  User.findOneAndUpdate(req.user._id, { avatar: req.body.avatar }, { runValidators: true })
+    .then((avatar) => res.send({ avatar }))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'ValidationError') {
