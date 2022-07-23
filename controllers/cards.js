@@ -19,15 +19,19 @@ const createCard = (req, res) => {
 };
 
 const deleteCard = (req, res) => {
-  const { cardId } = req.params;
-  Card.findByIdAndRemove(cardId)
+  Card.findByIdAndRemove(req.params.cardId)
     .then((card) => res.send({ card }))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         return res
           .status(404)
-          .send({ message: 'Карточка с указанным id не найдена' });
+          .send({ message: 'Запрашиваемый пользователь не найден' });
+      }
+      if (err.name === 'CastError') {
+        return res
+          .status(400)
+          .send({ message: 'Введены некорректные данные' });
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
