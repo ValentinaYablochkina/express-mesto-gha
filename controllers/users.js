@@ -7,7 +7,8 @@ const getUsers = (req, res) => {
 };
 
 const getUser = (req, res) => {
-  User.findOne({ _id: req.params })
+  const { userId } = req.params;
+  User.findById(userId)
     .then((user) => res.send({ user }))
     // eslint-disable-next-line consistent-return
     .catch((err) => {

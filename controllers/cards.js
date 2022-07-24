@@ -9,10 +9,9 @@ const createCard = (req, res) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.send({ card }))
-    // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректны данные' });
+        res.status(400).send({ message: 'Переданы некорректны данные' });
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
@@ -27,10 +26,9 @@ const deleteCard = (req, res) => {
       }
       return res.send({ card });
     })
-    // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res
+        res
           .status(400)
           .send({ message: 'Введены некорректные данные' });
       }
@@ -50,14 +48,17 @@ const likeCard = (req, res) => {
       }
       return res.send({ card });
     })
-    // eslint-disable-next-line consistent-return
+  // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         return res
           .status(400)
-          .send({
-            message: 'Переданы некорректные данные для постановки лайка',
-          });
+          .send({ message: 'Переданы некорректные данные для постановки лайка' });
+      }
+      if (err.name === 'ValidationError') {
+        return res
+          .status(404)
+          .send({ message: 'Передан несуществующий id карточки' });
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
@@ -77,12 +78,12 @@ const dislikeCard = (req, res) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         return res
           .status(400)
           .send({ message: 'Переданы некорректные данные для снятия лайка' });
       }
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         return res
           .status(404)
           .send({ message: 'Передан несуществующий id карточки' });
