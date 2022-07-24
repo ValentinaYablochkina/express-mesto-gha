@@ -9,7 +9,12 @@ const getUsers = (req, res) => {
 const getUser = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
-    .then((user) => res.send({ user }))
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({ message: 'Передан несуществующий id карточки' });
+      }
+      return res.send({ user });
+    })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'ValidationError') {
