@@ -45,19 +45,19 @@ const updateUserProfile = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+        return res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
       }
       return res.send({ user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res
-          .status(400)
-          .send({ message: 'Введены некорректные данные' });
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
+
 const updateUserAvatar = (req, res) => {
   User.findOneAndUpdate(
     req.user._id,
@@ -66,17 +66,16 @@ const updateUserAvatar = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+        return res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
       }
       return res.send({ user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res
-          .status(400)
-          .send({ message: 'Введены некорректные данные' });
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
