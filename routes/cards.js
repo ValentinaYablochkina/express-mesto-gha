@@ -1,3 +1,4 @@
+const router = require('express').Router();
 const {
   getCards,
   createCard,
@@ -5,9 +6,6 @@ const {
   likeCard,
   dislikeCard,
 } = require('../controllers/cards');
-
-// eslint-disable-next-line import/order
-const router = require('express').Router();
 
 router.get('/', getCards);
 router.post('/', createCard);

@@ -11,19 +11,13 @@ const getUser = (req, res) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: 'Передан несуществующий id карточки' });
+        return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
       }
       return res.send({ user });
     })
-    // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res
-          .status(404)
-          .send({ message: 'Запрашиваемый пользователь не найден' });
-      }
       if (err.name === 'CastError') {
-        return res
+        res
           .status(400)
           .send({ message: 'Введены некорректные данные' });
       }
@@ -35,45 +29,52 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => res.send(user))
-    // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        res.status(400).send({ message: 'Переданы некорректные данные' });
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
 const updateUserProfile = (req, res) => {
-  // eslint-disable-next-line max-len
-  User.findOneAndUpdate(req.user._id, { name: req.body.name, about: req.body.about }, { runValidators: true, new: true })
-    .then((user) => res.send({ user }))
-    // eslint-disable-next-line consistent-return
+  User.findOneAndUpdate(
+    req.user._id,
+    { name: req.body.name, about: req.body.about },
+    { runValidators: true, new: true },
+  )
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+      }
+      return res.send({ user });
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res
-          .status(404)
-          .send({ message: 'Пользователь с указанным id не найден' });
-      }
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        res
+          .status(400)
+          .send({ message: 'Введены некорректные данные' });
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 const updateUserAvatar = (req, res) => {
-  // eslint-disable-next-line max-len
-  User.findOneAndUpdate(req.user._id, { avatar: req.body.avatar }, { runValidators: true, new: true })
-    .then((user) => res.send({ user }))
-    // eslint-disable-next-line consistent-return
+  User.findOneAndUpdate(
+    req.user._id,
+    { avatar: req.body.avatar },
+    { runValidators: true, new: true },
+  )
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+      }
+      return res.send({ user });
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res
-          .status(404)
-          .send({ message: 'Пользователь с указанным id не найден' });
-      }
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        res
+          .status(400)
+          .send({ message: 'Введены некорректные данные' });
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });

@@ -48,17 +48,11 @@ const likeCard = (req, res) => {
       }
       return res.send({ card });
     })
-  // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res
+        res
           .status(400)
           .send({ message: 'Переданы некорректные данные для постановки лайка' });
-      }
-      if (err.name === 'ValidationError') {
-        return res
-          .status(404)
-          .send({ message: 'Передан несуществующий id карточки' });
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
@@ -76,17 +70,11 @@ const dislikeCard = (req, res) => {
       }
       return res.send({ card });
     })
-    // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res
+        res
           .status(400)
           .send({ message: 'Переданы некорректные данные для снятия лайка' });
-      }
-      if (err.name === 'ValidationError') {
-        return res
-          .status(404)
-          .send({ message: 'Передан несуществующий id карточки' });
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
