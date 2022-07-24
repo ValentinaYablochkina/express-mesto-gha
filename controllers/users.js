@@ -7,9 +7,8 @@ const getUsers = (req, res) => {
 };
 
 const getUser = (req, res) => {
-  const { userId } = req.params;
-  User.findById(userId)
-    .then((user) => res.send(user))
+  User.findOne({ _id: req.params })
+    .then((user) => res.send({ user }))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -41,33 +40,34 @@ const createUser = (req, res) => {
 
 const updateUserProfile = (req, res) => {
   // eslint-disable-next-line max-len
-  User.findOneAndUpdate(req.user._id, { name: req.body.name, about: req.body.about }, { runValidators: true })
-    .then((user) => res.send(user.name, user.about))
+  User.findOneAndUpdate(req.user._id, { name: req.body.name, about: req.body.about }, { runValidators: true, new: true })
+    .then((user) => res.send({ user }))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
-      }
       if (err.name === 'CastError') {
         return res
           .status(404)
           .send({ message: 'Пользователь с указанным id не найден' });
+      }
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные' });
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 const updateUserAvatar = (req, res) => {
-  User.findOneAndUpdate(req.user._id, { avatar: req.body.avatar }, { runValidators: true })
-    .then((user) => res.send(user.avatar))
+  // eslint-disable-next-line max-len
+  User.findOneAndUpdate(req.user._id, { avatar: req.body.avatar }, { runValidators: true, new: true })
+    .then((user) => res.send({ user }))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
-      }
       if (err.name === 'CastError') {
         return res
           .status(404)
           .send({ message: 'Пользователь с указанным id не найден' });
+      }
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные' });
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });

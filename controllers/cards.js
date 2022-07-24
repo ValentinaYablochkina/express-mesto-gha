@@ -19,19 +19,20 @@ const createCard = (req, res) => {
 };
 
 const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  const { cardId } = req.params;
+  Card.findByIdAndRemove(cardId)
     .then((card) => res.send({ card }))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res
-          .status(404)
-          .send({ message: 'Запрашиваемый пользователь не найден' });
-      }
       if (err.name === 'CastError') {
         return res
           .status(400)
           .send({ message: 'Введены некорректные данные' });
+      }
+      if (err.name === 'ValidationError') {
+        return res
+          .status(404)
+          .send({ message: 'Запрашиваемый пользователь не найден' });
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
@@ -41,9 +42,9 @@ const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true },
+    { new: true, runValidators: true },
   )
-    .then((likes) => res.send({ likes }))
+    .then((card) => res.send({ card }))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -55,8 +56,8 @@ const likeCard = (req, res) => {
       }
       if (err.name === 'CastError') {
         return res
-          .status(404)
-          .send({ message: 'Передан несуществующий id карточки' });
+          .status(400)
+          .send({ message: 'Введены некорректные данные' });
       }
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
@@ -66,7 +67,7 @@ const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true },
+    { new: true, runValidators: true },
   )
     .then((likes) => res.send({ likes }))
     // eslint-disable-next-line consistent-return
