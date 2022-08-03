@@ -7,7 +7,7 @@ const SALT_ROUNDS = 10;
 
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send(users))
+    .then((users) => res.status(200).send(users))
     .catch(next);
 };
 
@@ -17,7 +17,7 @@ const getUser = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
-      return res.send({ user });
+      return res.status(200).send({ user });
     })
     .catch(next);
 };
@@ -29,7 +29,7 @@ const getUserById = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
-      return res.send({ user });
+      return res.status(200).send({ user });
     })
     .catch(next);
 };
@@ -67,7 +67,7 @@ const login = (req, res) => {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
       });
-      res.send({ token });
+      res.status(200).send({ token });
     })
     .catch((err) => {
       res
@@ -86,7 +86,7 @@ const updateUserProfile = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь с указанным _id не найден.');
       }
-      return res.send({ user });
+      return res.status(200).send({ user });
     })
     .catch(next);
 };
@@ -101,7 +101,7 @@ const updateUserAvatar = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь с указанным _id не найден.');
       }
-      return res.send({ user });
+      return res.status(200).send({ user });
     })
     .catch(next);
 };
