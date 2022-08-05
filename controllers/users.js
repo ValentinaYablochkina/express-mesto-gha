@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const Unauthorized = require('../errors/err-401');
-const Conflict = require('../errors/conflict');
 
 const SALT_ROUNDS = 10;
 
@@ -41,7 +40,7 @@ const createUser = (req, res, next) => {
   User.findOne({ email })
     .then((data) => {
       if (data) {
-        throw new Conflict('Такой пользователь существует');
+        res.status(409).send({ message: 'Такой пользователь существует' });
       }
       bcrypt.hash(password, SALT_ROUNDS)
         .then((hash) => {
