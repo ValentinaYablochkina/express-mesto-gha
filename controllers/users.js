@@ -69,11 +69,7 @@ const login = (req, res, next) => {
       });
       res.status(200).send({ token });
     })
-    .catch((err) => {
-      if (err.code === 401) {
-        res.status(401).send({ message: 'Такого пользователя не существует' });
-      } else { next(); }
-    });
+    .catch(next);
 };
 
 const updateUserProfile = (req, res, next) => {
