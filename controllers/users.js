@@ -62,9 +62,6 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      if (!user) {
-        res.status(401).send({ message: 'Введены некорректные данные' });
-      }
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
@@ -72,7 +69,11 @@ const login = (req, res, next) => {
       });
       res.status(200).send({ token });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.code === 401) {
+        res.status(401).send({ message: 'Такого пользователя не существует' });
+      } else { next(); }
+    });
 };
 
 const updateUserProfile = (req, res, next) => {
