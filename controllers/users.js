@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
-const Unauthorized = require('../errors/err-401');
 
 const SALT_ROUNDS = 10;
 
@@ -64,7 +63,7 @@ const login = (req, res, next) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       if (!user) {
-        throw new Unauthorized('Введены неверные данные');
+        res.status(401).send({ message: 'Введены некорректные данные' });
       }
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.cookie('jwt', token, {
