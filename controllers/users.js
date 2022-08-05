@@ -2,6 +2,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
+const Unauthorized = require('../errors/err-401');
+const Conflict = require('../errors/conflict');
 
 const SALT_ROUNDS = 10;
 
@@ -39,7 +41,7 @@ const createUser = (req, res, next) => {
   User.findOne({ email })
     .then((data) => {
       if (data) {
-        res.status(409).send({ message: 'Такой пользователь существует' });
+        throw new Conflict('Такой пользователь существует');
       }
       bcrypt.hash(password, SALT_ROUNDS)
         .then((hash) => {
@@ -52,16 +54,19 @@ const createUser = (req, res, next) => {
                 email: user.email,
               });
             })
-            .catch((err) => res.send(err.message));
+            .catch(next);
         })
         .catch(next);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
+      if (!user) {
+        throw new Unauthorized('Введены неверные данные');
+      }
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
@@ -69,11 +74,7 @@ const login = (req, res) => {
       });
       res.status(200).send({ token });
     })
-    .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
-    });
+    .catch(next);
 };
 
 const updateUserProfile = (req, res, next) => {
@@ -86,7 +87,7 @@ const updateUserProfile = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь с указанным _id не найден.');
       }
-      return res.status(200).send(user.name, user.about);
+      return res.status(200).send({ user });
     })
     .catch(next);
 };
@@ -101,7 +102,7 @@ const updateUserAvatar = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь с указанным _id не найден.');
       }
-      return res.status(200).send(user.avatar);
+      return res.status(200).send({ user });
     })
     .catch(next);
 };

@@ -1,5 +1,6 @@
 const Card = require('../models/card');
 const NotFoundError = require('../errors/not-found-err');
+const AuthorizedButForbidden = require('../errors/err-403');
 
 const getCards = (req, res) => {
   Card.find({}).then((cards) => res.send(cards));
@@ -17,7 +18,10 @@ const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findById(cardId)
     .then((card) => {
-      if (card.owner === req.user._id) {
+      // eslint-disable-next-line eqeqeq
+      if (card.owner != req.user._id) {
+        throw new AuthorizedButForbidden('Нарушение прав доступа');
+      } else {
         card.remove()
           .then(() => {
             res.status(200).send({ message: 'Карточка удалена' });
