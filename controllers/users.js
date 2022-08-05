@@ -52,7 +52,7 @@ const createUser = (req, res, next) => {
                 email: user.email,
               });
             })
-            .catch(next);
+            .catch((err) => res.send(err.message));
         })
         .catch(next);
     });

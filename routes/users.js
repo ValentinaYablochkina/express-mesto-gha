@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const auth = require('../middlewares/auth');
 
-const regex = /^(https?):\/\/?(\www\.)?([a-z0-9-]+)\.([a-z]){2,6}(\/[a-z0-9\-._~:?#[\]@!$&'()*+,;=]+)?/m;
+const regex = /^(https?):\/\/?(\www\.)?([a-z0-9-]+)\.([a-z0-9-]{2,6})\/?((\.?\/?[a-z0-9-_]+)*)\/?/m;
 
 const {
   getUsers,
@@ -41,6 +41,9 @@ router.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(regex),
   }),
 }), createUser);
 module.exports = router;
