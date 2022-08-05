@@ -58,7 +58,7 @@ const createUser = (req, res, next) => {
     });
 };
 
-const login = (req, res, next) => {
+const login = (req, res) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -69,7 +69,7 @@ const login = (req, res, next) => {
       });
       res.status(200).send({ token });
     })
-    .catch(next);
+    .catch(() => res.status(401).send({ message: 'Неправильные почта или пароль' }));
 };
 
 const updateUserProfile = (req, res, next) => {
