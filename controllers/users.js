@@ -2,12 +2,15 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
+const ValidationError = require('../errors/ValidationErr');
+const ConflictErr = require('../errors/err-409');
+const TokenErr = require('../errors/err-401');
 
 const SALT_ROUNDS = 10;
 
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
+    .then((users) => res.send(users))
     .catch(next);
 };
 
@@ -17,11 +20,12 @@ const getUser = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
-      return res.status(200).send({
+      return res.send({
         name: user.name,
         about: user.about,
         avatar: user.avatar,
         email: user.email,
+        _id: user._id,
       });
     })
     .catch(next);
@@ -34,41 +38,53 @@ const getUserById = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
-      return res.status(200).send({
+      return res.send({
         name: user.name,
         about: user.about,
         avatar: user.avatar,
         email: user.email,
+        _id: user._id,
       });
     })
     .catch(next);
 };
 
 const createUser = (req, res, next) => {
-  const { email, password } = req.body;
-  User.findOne({ email })
-    .then((data) => {
-      if (data) {
-        res.status(409).send({ message: 'Такой пользователь существует' });
-      }
-      bcrypt.hash(password, SALT_ROUNDS)
-        .then((hash) => {
-          User.create({ email, password: hash })
-            .then((user) => {
-              res.status(201).send({
-                name: user.name,
-                about: user.about,
-                avatar: user.avatar,
-                email: user.email,
-              });
-            })
-            .catch(next);
+  const {
+    email, password, name, avatar, about,
+  } = req.body;
+  bcrypt.hash(password, SALT_ROUNDS)
+    .then((hash) => {
+      User.create({
+        email, name, avatar, about, password: hash,
+      })
+        .then((user) => {
+          res.status(201).send({
+            name: user.name,
+            about: user.about,
+            avatar: user.avatar,
+            email: user.email,
+            _id: user._id,
+          });
         })
-        .catch(next);
+        .catch((err) => {
+          if (err.code === 11000) {
+            next(new ConflictErr('Пользователь с данным email уже существует'));
+          } else {
+            next(err);
+          }
+        });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('Введены некорректные данные'));
+      } else {
+        next(err);
+      }
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -77,9 +93,15 @@ const login = (req, res) => {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
       });
-      res.status(200).send({ token });
+      res.send({ token });
     })
-    .catch(() => res.status(401).send({ message: 'Неправильные почта или пароль' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new TokenErr('Введены некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const updateUserProfile = (req, res, next) => {
@@ -92,9 +114,15 @@ const updateUserProfile = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь с указанным _id не найден.');
       }
-      return res.status(200).send({ user });
+      return res.send({ user });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('Введены некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const updateUserAvatar = (req, res, next) => {
@@ -107,9 +135,15 @@ const updateUserAvatar = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь с указанным _id не найден.');
       }
-      return res.status(200).send({ user });
+      return res.send({ user });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('Введены некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 module.exports = {
