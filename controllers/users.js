@@ -95,12 +95,8 @@ const login = (req, res, next) => {
       });
       res.send({ token });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new TokenErr('Введены некорректные данные'));
-      } else {
-        next(err);
-      }
+    .catch(() => {
+      next(new TokenErr('Необходима авторизация'));
     });
 };
 

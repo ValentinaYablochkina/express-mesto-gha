@@ -9,8 +9,6 @@ module.exports = (req, res, next) => {
   } catch (err) {
     next(new TokenErr('Необходима авторизация'));
   }
-
   req.user = payload;
-
   next();
 };
